@@ -1,0 +1,3 @@
+/Users/GVALMTGG/Github/rdkit-mhpf/CMakeFiles/rebuild_cache.dir
+/Users/GVALMTGG/Github/rdkit-mhpf/CMakeFiles/edit_cache.dir
+/Users/GVALMTGG/Github/rdkit-mhpf/CMakeFiles/test.dir
