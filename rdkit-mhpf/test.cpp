@@ -41,7 +41,7 @@ distrib generatordistrib(int seed, int distribsize){
 	// generator 1:
     std::mt19937::result_type myseed = seed;
     std::mt19937 e1(myseed); //_64 to have 64 bits double not needed
-    std::uniform_int_distribution<long long int> dist1(std::llround(0.0), max_hash); // fix
+    std::uniform_int_distribution<long long int> dist1(1, max_hash); // fix dist1
     while (v1.size()<distribsize) {
     	long long int a = dist1(e1);
         bool result = !std::any_of(v1.begin(),v1.end(),compare(a));
@@ -53,7 +53,7 @@ distrib generatordistrib(int seed, int distribsize){
 
     // generator 2:
     std::mt19937 e2(myseed); //_64 to have 64 bits double not needed
-    std::uniform_int_distribution<long long int> dist2(std::llround(1.0), max_hash); // fix
+    std::uniform_int_distribution<long long int> dist2(0, max_hash); // fix dist2
     while (v2.size()<distribsize) {
     	long long int b = dist2(e2);
         bool result = !std::any_of(v2.begin(),v2.end(),compare(b));
@@ -138,7 +138,9 @@ std::vector<uint32_t> from_molecular_shingling(std::vector<std::string> token, d
 	for(const auto res : token){
 		SHA1 checksum;
     	checksum.update(res);
-    	uint32_t t_h = checksum.Hash();
+    	uint32_t t_h = checksum.Hash(); // not same as in python
+        std::cout << "t_h : "<< t_h << std::endl;
+
     	for (int j=0;j<distribsize;j++){
 			hash_values[j] = fmin( hash_values[j] , remainder( remainder( dab.da[j] * t_h + dab.db[j], dab.prime) , dab.max_hash) );
 		}
@@ -151,7 +153,7 @@ std::vector<uint32_t> from_molecular_shingling(std::vector<std::string> token, d
 int main()
 {
 
-	int bitsize = 120;
+	int bitsize = 2048;
     distrib dab = generatordistrib(42, bitsize);
     std::cout << dab.da.size()<< ", " << dab.db.size()<< std::endl ;
 	std::cout << "prime : "<< dab.prime << std::endl;
