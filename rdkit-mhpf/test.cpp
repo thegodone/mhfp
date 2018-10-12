@@ -9,7 +9,6 @@
 #include <GraphMol/Subgraphs/SubgraphUtils.h>
 #include "sha1.hpp"
 
-
 using namespace RDKit;
 struct compare
 {
@@ -46,7 +45,7 @@ distrib generatordistrib(int seed, int distribsize){
     	long long int a = dist1(e1);
         bool result = !std::any_of(v1.begin(),v1.end(),compare(a));
         if (result) {
-        v1.push_back(a);
+        	v1.push_back(a);
 
     	}
     }
@@ -58,7 +57,7 @@ distrib generatordistrib(int seed, int distribsize){
     	long long int b = dist2(e2);
         bool result = !std::any_of(v2.begin(),v2.end(),compare(b));
         if (result) {
-        v2.push_back(b);
+        	v2.push_back(b);
     	}
     }
 
@@ -152,10 +151,9 @@ std::vector<uint32_t> from_molecular_shingling(std::vector<std::string> token, d
 
 int main()
 {
-
 	int bitsize = 2048;
     distrib dab = generatordistrib(42, bitsize);
-    std::cout << dab.da.size()<< ", " << dab.db.size()<< std::endl ;
+    //std::cout << dab.da.size()<< ", " << dab.db.size()<< std::endl ;
 	std::cout << "prime : "<< dab.prime << std::endl;
 	std::cout << "maxhash : "<< dab.max_hash << std::endl;
 
