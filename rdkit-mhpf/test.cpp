@@ -22,7 +22,6 @@ struct compare
     }
 };
 
-
 struct distrib{
 	std::vector<uint64_t> da;
 	std::vector<uint64_t> db;
@@ -30,20 +29,19 @@ struct distrib{
 	long long int prime;
 };
 
-
 // generator of distribution for Hashing
 distrib generatordistrib(int seed, int distribsize){
 
 	distrib dab;
-	long int max_hash = std::llround(std::pow(2,32)); // 4294967295 +1 ? ...
-    long long int prime = std::llround(std::pow(2,61)); // 2305843009213693951 +1 ? ...
+	long int max_hash = std::llround(std::pow(2,32)) - 1; // fix
+    long long int prime = std::llround(std::pow(2,61)) -1; // fix
  	std::vector<uint64_t> v1;
  	std::vector<uint64_t> v2;
 
 	// generator 1:
     std::mt19937::result_type myseed = seed;
     std::mt19937 e1(myseed); //_64 to have 64 bits double not needed
-    std::uniform_int_distribution<long long int> dist1(std::llround(0.0), std::llround(std::pow(2,32)));
+    std::uniform_int_distribution<long long int> dist1(std::llround(0.0), max_hash); // fix
     while (v1.size()<distribsize) {
     	long long int a = dist1(e1);
         bool result = !std::any_of(v1.begin(),v1.end(),compare(a));
@@ -55,7 +53,7 @@ distrib generatordistrib(int seed, int distribsize){
 
     // generator 2:
     std::mt19937 e2(myseed); //_64 to have 64 bits double not needed
-    std::uniform_int_distribution<long long int> dist2(std::llround(1.0), std::llround(std::pow(2,32)));
+    std::uniform_int_distribution<long long int> dist2(std::llround(1.0), max_hash); // fix
     while (v2.size()<distribsize) {
     	long long int b = dist2(e2);
         bool result = !std::any_of(v2.begin(),v2.end(),compare(b));
@@ -98,11 +96,9 @@ std::vector<std::string> shingling_from_mol(RDKit::ROMol *in_mol, int radius, bo
     		}
   		}
 
-
   		// by default canonical MolToSmiles
   		RDKit::ROMol *submol = Subgraphs::pathToSubmol(*in_mol, bonds);
   		std::string subsmi = RDKit::MolToSmiles(*submol);
-
         shingling.push_back(subsmi);
 	}
 
@@ -158,10 +154,10 @@ int main()
 	int bitsize = 120;
     distrib dab = generatordistrib(42, bitsize);
     std::cout << dab.da.size()<< ", " << dab.db.size()<< std::endl ;
-	//std::cout << "prime : "<< dab.prime << std::endl;
-	//std::cout << "maxhash : "<< dab.max_hash << std::endl;
+	std::cout << "prime : "<< dab.prime << std::endl;
+	std::cout << "maxhash : "<< dab.max_hash << std::endl;
 
-	RDKit::ROMol *mol1 = RDKit::SmilesToMol("c1ccccc1COCC");
+	RDKit::ROMol *mol1 = RDKit::SmilesToMol("c1ccccc1");
 
 	std::vector<std::string> res = shingling_from_mol(mol1, 3, true, true);
 
