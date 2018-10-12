@@ -8,6 +8,8 @@
 #include <GraphMol/Subgraphs/Subgraphs.h>
 #include <GraphMol/Subgraphs/SubgraphUtils.h>
 #include "sha1.hpp"
+#include <boost/uuid/sha1.hpp>
+
 
 using namespace RDKit;
 struct compare
@@ -126,21 +128,28 @@ std::vector<std::string> shingling_from_mol(RDKit::ROMol *in_mol, int radius, bo
 }
 
 
-std::vector<uint32_t> from_molecular_shingling(std::vector<std::string> token, distrib dab, int distribsize){
+std::vector<uint32_t> from_molecular_shingling(std::vector<std::string> token, distrib dab, int FPsize){
 	// set the hash_values
 	std::vector<uint32_t> hash_values;
 
-	for (int i=0;i<distribsize;i++){
+	for (int i=0;i<FPsize;i++){
 		hash_values.push_back(dab.max_hash);
 	}
 	// generate hashes
 	for(const auto res : token){
-		SHA1 checksum;
-    	checksum.update(res);
-    	uint32_t t_h = checksum.Hash(); // not same as in python
+		boost::uuids::detail::sha1 sha1;
+	    unsigned int hash[5];
+	    sha1.process_bytes(res.c_str(), sizeof(res.c_str())-1);
+	    sha1.get_digest(hash);
+	    uint32_t t_h = hash[0];
+
+
+		//SHA1 checksum;
+    	//checksum.update(res);
+    	//uint32_t t_h = checksum.Hash(); // not same as in python
         std::cout << "t_h : "<< t_h << std::endl;
 
-    	for (int j=0;j<distribsize;j++){
+    	for (int j=0;j<FPsize;j++){
 			hash_values[j] = fmin( hash_values[j] , remainder( remainder( dab.da[j] * t_h + dab.db[j], dab.prime) , dab.max_hash) );
 		}
 	}
@@ -151,8 +160,8 @@ std::vector<uint32_t> from_molecular_shingling(std::vector<std::string> token, d
 
 int main()
 {
-	int bitsize = 2048;
-    distrib dab = generatordistrib(42, bitsize);
+	int FPsize = 2048;
+    distrib dab = generatordistrib(42, FPsize);
     //std::cout << dab.da.size()<< ", " << dab.db.size()<< std::endl ;
 	std::cout << "prime : "<< dab.prime << std::endl;
 	std::cout << "maxhash : "<< dab.max_hash << std::endl;
@@ -161,8 +170,8 @@ int main()
 
 	std::vector<std::string> res = shingling_from_mol(mol1, 3, true, true);
 
-    std::vector<uint32_t> hash_values = from_molecular_shingling(res, dab, bitsize);
-	for (int i=0;i<bitsize;i++){
+    std::vector<uint32_t> hash_values = from_molecular_shingling(res, dab, FPsize);
+	for (int i=0;i<FPsize;i++){
 		std::cout <<  hash_values[i]  << ",";
 	}
 
